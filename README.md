@@ -1,8 +1,10 @@
 # asterisk-web-voicemail
-Web interface for the  management of Asterisk Voice Mail
+Web interface for the  management of Asterisk Voice Mail.
 
-This package allows the asterisk user to login from a web interface, view
-the voicemail received ordered by date, listen to them, delete and move in
+This package is an add-on to [Asterisk Sip Server](https://www.asterisk.org).
+
+It allows the sip user to login to a web interface, view
+the voice mails received ordered by date, listen the recording, delete and move in
 different folders.
 
 ## Requirements:
