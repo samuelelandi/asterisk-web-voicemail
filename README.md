@@ -30,6 +30,15 @@ $SECRETSEED = "5ac3162036c96541c8c2336c2689ee572f71ebdad2a67c98ab82ee1725436a56"
 //********************END PARAMETERS *********************************************
 ```
 
+## Security:
+
+The users passwords are safely stored as a strong hash with [Argon2](https://en.wikipedia.org/wiki/Argon2)
+
+The session token is derived from a 3 layers encryption (AES-256,CHACHA20 and CAMELLIA-256)
+and the $SECRETSEED above. 
+
+ATTENTION: It's very important to change the $SECRETSEED.
+
 
 ##Running
 
