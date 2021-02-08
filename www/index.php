@@ -1,4 +1,5 @@
 <?php
+    session_start();
     if(isset($_REQUEST['extension']) && isset($_REQUEST['password'])) 
     {
         $socket=connect_to_server();
@@ -13,7 +14,9 @@
         }
         if($j->answer=="OK")
         {
-            setcookie("token",$j->token);            
+            $_SESSION["token"]=$j->token;            
+            $_SESSION["extension"]=$_REQUEST['extension'];            
+            $_SESSION["folder"]="INBOX";            
             header("Location: dashboard.php");
             socket_close($socket);
             exit(0);
@@ -52,12 +55,19 @@
         </div>
     </div>
     <hr>
+    <?php 
+        if(strlen($error)>0){
+            echo '<div class="alert alert-danger" role="alert">';
+            echo $error;
+            echo '</div>';
+        }
+    ?>
     </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 </body>
 </html>
+
 <?php
-#include "commonfunctions.php";
 // function to connect to the  asterisk-web-voicemail-server (127.0.0.1:4444)
 function connect_to_server(){
     $address="127.0.0.1";

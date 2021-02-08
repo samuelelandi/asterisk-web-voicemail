@@ -77,7 +77,6 @@ function onConnect( $client ) {
                                 sleep(1);
                                 break;
 			}
-			echo "step 1\n";
 			//remove \n if present in the password field
 			$pwd=str_replace("\n","",$f["password"]);
 			$pwd=str_replace("\r","",$pwd);
@@ -124,6 +123,7 @@ function onConnect( $client ) {
                         $v=explode("?",$read);
                         if(!isset($v[1])){
                                 $answer='{"answer":"KO","message":"Missing data for the query"}';
+                                echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;  
@@ -132,6 +132,7 @@ function onConnect( $client ) {
                         parse_str($v[1], $f);
                         if(strlen($f["folder"])==0 || strlen($f["token"])==0){
                                 $answer='{"answer":"KO","message":"Missing folder or token"}';
+                                echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
@@ -145,22 +146,25 @@ function onConnect( $client ) {
                         $v=explode("#",$cleartext);
                         if(!isset($v[0])){
 	                        $answer='{"answer":"KO","message":"Token not valid"}';
+	                        echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
                         }
-/*                        if(time()>$v[1]){
+                        if(time()>$v[1]){
                         	$answer='{"answer":"KO","message":"Token is expired"}';
+                        	echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
-                        }*/
+                        }
                         $dp=$GLOBALS['MAILBOXPATH'].$v[0]."/".$f["folder"];
                         echo "path: ".$dp."\n";
                         $d=dir($dp);
                         //empty directory
                         if($d==NULL){
 				$answer='{"answer":"OK","message":"list of voicemail for '.$v[0].'","voicemail":[]}';                        
+				echo $answer."\n";
 				$client->send($answer);
 	                        sleep(1);
         	                break;
@@ -208,6 +212,7 @@ function onConnect( $client ) {
 			$vt.="]";
                         // create json with list of voicemails
                         $answer='{"answer":"OK","message":"list of voicemail for '.$v[0].'","files":'.$vt.'}';
+                        echo $answer."\n";
                         $client->send($answer);
                         sleep(1);
                         break;
@@ -217,20 +222,24 @@ function onConnect( $client ) {
                         $v=explode("?",$read);
                         if(!isset($v[1])){
                                 $answer='{"answer":"KO","message":"Missing data for the query"}';
+                                echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;  
                         }
                         $f=array();
                         parse_str($v[1], $f);
+                        var_dump($f);
                         if(strlen($f["folder"])==0 || strlen($f["filename"])==0 || strlen($f["token"])==0){
                                 $answer='{"answer":"KO","message":"Missing folder or filename"}';
+                                echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
                         }
                         if(strstr($f["filename"],".wav")==NULL){
-				$answer='{"answer":"KO","message":"Filenam is wrong, only .wav files are allowed"}';
+				$answer='{"answer":"KO","message":"Filename is wrong, only .wav files are allowed"}';
+				echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;                        	
@@ -246,16 +255,18 @@ function onConnect( $client ) {
                         $v=explode("#",$cleartext);
                         if(!isset($v[0])){
 	                        $answer='{"answer":"KO","message":"Token not valid"}';
+	                        echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
                         }
-/*                        if(time()>$v[1]){
+                        if(time()>$v[1]){
                         	$answer='{"answer":"KO","message":"Token is expired"}';
+                        	echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
-                        }*/
+                        }
                         $fp=$GLOBALS['MAILBOXPATH'].$v[0]."/".$f["folder"]."/".$filename;
                         if(file_exists($fp)){
                         	$fh = fopen($fp, "rb");
@@ -267,7 +278,8 @@ function onConnect( $client ) {
 				sleep(1);
 	                        break;
                         }
-                        $answer='{"answer":"KO","message":"file not found"}';
+                        $answer='{"answer":"KO","message":"File not found"}';
+                        echo $answer."\n";
                         $client->send($answer);
                         sleep(1);
                         break;
@@ -310,12 +322,12 @@ function onConnect( $client ) {
                                 sleep(1);
                                 break;
                         }
-/*                        if(time()>$v[1]){
+                        if(time()>$v[1]){
                         	$answer='{"answer":"KO","message":"Token is expired"}';
                                 $client->send($answer);
                                 sleep(1);
                                 break;
-                        }*/
+                        }
                         $fp=$GLOBALS['MAILBOXPATH'].$v[0]."/".$f["folder"]."/".$filename;
                         if(file_exists($fp)){
                         	$fpt=str_replace(".wav",".txt",$fp);
@@ -332,6 +344,162 @@ function onConnect( $client ) {
                         $client->send($answer);
                         sleep(1);
                         break;
+		}
+		//process the "archive" request
+                if(strstr($read,"/archive?")!=NULL){
+                        $v=explode("?",$read);
+                        if(!isset($v[1])){
+                                $answer='{"answer":"KO","message":"Missing data for the query"}';
+                                echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;  
+                        }
+                        $f=array();
+                        parse_str($v[1], $f);
+                        if(strlen($f["folder"])==0 || strlen($f["filename"])==0 || strlen($f["token"])==0){
+                                $answer='{"answer":"KO","message":"Missing folder or filename"}';
+                                echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        if(strstr($f["filename"],".wav")==NULL){
+				$answer='{"answer":"KO","message":"Filename is wrong, only .wav files are allowed"}';
+				echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;                        	
+                        }
+                        $folder=$f["folder"];
+                        //remove \r\n if present in the filename field
+                        $filename=str_replace("\n","",$f["filename"]);
+                        $filename=str_replace("\r","",$filename);
+                        //remove \r\n if present in the token field
+                        $token=str_replace("\n","",$f["token"]);
+                        $token=str_replace("\r","",$token);
+                        // decrypt token and get the username
+                        $cleartext=decrypt($token,$GLOBALS["SECRETSEED"]);
+                        $v=explode("#",$cleartext);
+                        if(!isset($v[0])){
+	                        $answer='{"answer":"KO","message":"Token not valid"}';
+	                        echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        if(time()>$v[1]){
+                        	$answer='{"answer":"KO","message":"Token is expired"}';
+                        	echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        $fp=$GLOBALS['MAILBOXPATH'].$v[0]."/".$f["folder"]."/".$filename;
+                        if(file_exists($fp)){
+                        	$fpt=str_replace(".wav",".txt",$fp);
+                        	$fpw=str_replace(".wav",".WAV",$fp);
+                        	$fpg=str_replace(".wav",".gsm",$fp);
+                        	$dfp=str_replace("/".$folder."/","/Old/",$fp);
+                        	$dfpt=str_replace("/".$folder."/","/Old/",$fpt);
+                        	$dfpw=str_replace("/".$folder."/","/Old/",$fpw);
+                        	$dfpg=str_replace("/".$folder."/","/Old/",$fpg);
+                        	echo "rename: ".$fp." ".$fpd."\n";
+                        	rename($fp,$dfp);
+                        	echo "rename: ".$fpt." ".$dfpt."\n";
+                        	rename($fpt,$dfpt);
+                        	echo "rename: ".$fpw." ".$dfpw."\n";
+                        	rename($fpw,$dfpw);
+                        	echo "rename: ".$fpg." ".$dfpg."\n";
+                        	rename($fpg,$dfpg);                        	
+                        	$answer='{"answer":"OK","message":"file archived"}';
+                        	echo $answer."\n";
+                        }
+                        else {
+	                        $answer='{"answer":"KO","message":"file not found"}';
+	                        echo $answer."\n";
+	                        $client->send($answer);
+	                        sleep(1);
+        	                break;
+			}
+		}
+		//process the "unarchive" request
+                if(strstr($read,"/unarchive?")!=NULL){
+                        $v=explode("?",$read);
+                        if(!isset($v[1])){
+                                $answer='{"answer":"KO","message":"Missing data for the query"}';
+                                echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;  
+                        }
+                        $f=array();
+                        parse_str($v[1], $f);
+                        if(strlen($f["folder"])==0 || strlen($f["filename"])==0 || strlen($f["token"])==0){
+                                $answer='{"answer":"KO","message":"Missing folder or filename"}';
+                                echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        if(strstr($f["filename"],".wav")==NULL){
+				$answer='{"answer":"KO","message":"Filename is wrong, only .wav files are allowed"}';
+				echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;                        	
+                        }
+                        $folder=$f["folder"];
+                        //remove \r\n if present in the filename field
+                        $filename=str_replace("\n","",$f["filename"]);
+                        $filename=str_replace("\r","",$filename);
+                        //remove \r\n if present in the token field
+                        $token=str_replace("\n","",$f["token"]);
+                        $token=str_replace("\r","",$token);
+                        // decrypt token and get the username
+                        $cleartext=decrypt($token,$GLOBALS["SECRETSEED"]);
+                        $v=explode("#",$cleartext);
+                        if(!isset($v[0])){
+	                        $answer='{"answer":"KO","message":"Token not valid"}';
+	                        echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        if(time()>$v[1]){
+                        	$answer='{"answer":"KO","message":"Token is expired"}';
+                        	echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        $fp=$GLOBALS['MAILBOXPATH'].$v[0]."/".$f["folder"]."/".$filename;
+                        if(file_exists($fp)){
+                        	$fpt=str_replace(".wav",".txt",$fp);
+                        	$fpw=str_replace(".wav",".WAV",$fp);
+                        	$fpg=str_replace(".wav",".gsm",$fp);
+                        	$dfp=str_replace("/".$folder."/","/INBOX/",$fp);
+                        	$dfpt=str_replace("/".$folder."/","/INBOX/",$fpt);
+                        	$dfpw=str_replace("/".$folder."/","/INBOX/",$fpw);
+                        	$dfpg=str_replace("/".$folder."/","/INBOX/",$fpg);
+                        	echo "rename: ".$fp." ".$fpd."\n";
+                        	rename($fp,$dfp);
+                        	echo "rename: ".$fpt." ".$dfpt."\n";
+                        	rename($fpt,$dfpt);
+                        	echo "rename: ".$fpw." ".$dfpw."\n";
+                        	rename($fpw,$dfpw);
+                        	echo "rename: ".$fpg." ".$dfpg."\n";
+                        	rename($fpg,$dfpg);                        	
+                        	$answer='{"answer":"OK","message":"file un-archived"}';
+                        	echo $answer."\n";
+                        }
+                        else {
+	                        $answer='{"answer":"KO","message":"file not found"}';
+	                        echo $answer."\n";
+	                        $client->send($answer);
+	                        sleep(1);
+        	                break;
+			}
 		}
 		
 

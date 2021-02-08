@@ -3,17 +3,18 @@ Web interface for the  management of Asterisk Voice Mail.
 
 This package is an add-on to [Asterisk Sip Server](https://www.asterisk.org).
 
-It allows the sip user to login to a web interface, view
+It allows the SIP user to login to a web interface, view
 the voice mails received ordered by date, listen the recording, delete and move in
-different folders.
+different folders (New and Archived).
 
 ## Requirements:
 
 PHP 7.x
+apache 2.x
 you can install it on modern Linux Debian/Ubuntu by:
 
 ```sh
-apt-get install php
+apt-get -y install apache2 php
 ```
 
 ## Installation:
@@ -31,15 +32,28 @@ $PASSWORDFILE  ="/etc/asterisk/asterisk-web-mailbox.pwd";
 $SECRETSEED = "5ac3162036c96541c8c2336c2689ee572f71ebdad2a67c98ab82ee1725436a56"; 
 //********************END PARAMETERS *********************************************
 ```
+cp www/* /var/www/html/
 
-## Security:
+Configure the extension and their password using:
 
-The users passwords are safely stored as a strong hash with [Argon2](https://en.wikipedia.org/wiki/Argon2)
+```sh
+php add-ext.php xxxextensionxxxxx yyyypaswordyyyyy
+```
 
-The session token is derived from a 3 layers encryption (AES-256,CHACHA20 and CAMELLIA-256)
-and the $SECRETSEED above. 
+where xxxextensionxxxxx is the extension number, for example 101 and yyyypaswordyyyyy is the password for web voice mail login (different
+from the sip account password).
 
-ATTENTION: It's very important to change the SECRETSEED.
+you can change a pwd if you need:
+
+```sh
+php changepwd-ext.php xxxextensionxxxxx yyyypaswordyyyyy
+```
+
+you can remove an extension with:
+
+```sh
+php delete-ext.php xxxextensionxxxxx yyyypaswordyyyyy
+```
 
 
 ##Running
@@ -56,5 +70,14 @@ or in foreground for debugging:
 php asterisk-web-voicemail-server.php 
 ```
 
+connect to the web server with your browser to login.
 
 
+## Security:
+
+The users passwords are safely stored as a strong hash with [Argon2](https://en.wikipedia.org/wiki/Argon2)
+
+The session token is derived from a 3 layers encryption (AES-256,CHACHA20 and CAMELLIA-256)
+and the $SECRETSEED above. 
+
+ATTENTION: It's very important to change the SECRETSEED.
