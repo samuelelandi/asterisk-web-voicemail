@@ -39,7 +39,7 @@ The users passwords are safely stored as a strong hash with [Argon2](https://en.
 The session token is derived from a 3 layers encryption (AES-256,CHACHA20 and CAMELLIA-256)
 and the $SECRETSEED above. 
 
-ATTENTION: It's very important to change the $SECRETSEED.
+ATTENTION: It's very important to change the SECRETSEED.
 
 
 ##Running
@@ -48,12 +48,12 @@ Start the socket server as daemon:
 
 ```sh
 php asterisk-web-voicemail-server.php >/dev/null &
-```sh
+```
 
 or in foreground for debugging:
 
 ```sh
-php asterisk-web-voicemail-server.php >/dev/null &
+php asterisk-web-voicemail-server.php 
 ```
 
 

@@ -47,7 +47,7 @@ function onConnect( $client ) {
 			break;
 		}
 		else {
-			printf( "[%s] received: %s", $client->getAddress(), $read );
+			printf( "[%s] received: %s]\n", $client->getAddress(), $read );
 		}
 		// process the "echo" request
 		if(strstr($read,"/echo")!=NULL){
@@ -59,9 +59,11 @@ function onConnect( $client ) {
 		}
 		//process the "login" request
 		if(strstr($read,"/login?")!=NULL){
+			echo "Processing login request...\n";
 			$v=explode("?",$read);
 			if(!isset($v[1])){
 				$answer='{"answer":"KO","message":"Missing data for the query"}';
+				echo $answer;
 				$client->send($answer);
 	                        sleep(1);
         	                break;  
@@ -70,18 +72,22 @@ function onConnect( $client ) {
 			parse_str($v[1], $f);
 			if(strlen($f["extension"])==0 || strlen($f["password"])==0){
 				$answer='{"answer":"KO","message":"Missing extension or password for logging in"}';
+				echo $answer."\n";
                                 $client->send($answer);
                                 sleep(1);
                                 break;
 			}
+			echo "step 1\n";
 			//remove \n if present in the password field
 			$pwd=str_replace("\n","",$f["password"]);
 			$pwd=str_replace("\r","",$pwd);
 			//check password validity
 			$fv=file($GLOBALS["PASSWORDFILE"]);
+			$fnd=false;
 			foreach($fv as $u){
 				$ue=explode("#",$u);
 				if($ue[0]==$f['extension']){
+					$fnd=true;
 					$pwdc=substr($ue[1],0,strlen($ue[1])-1);
 					if(password_verify($pwd,$pwdc)){
 						// generate token
@@ -89,6 +95,7 @@ function onConnect( $client ) {
 						$cleartext=$f["extension"]."#".$t;
 						$enc=encrypt($cleartext,$GLOBALS["SECRETSEED"]);
 						$answer='{"answer":"OK","message":"Login accepted","token":"'.$enc.'"}';
+						echo $answer."\n";
                                                 $client->send($answer);
                                                 sleep(1);
                                                 break;
@@ -96,11 +103,18 @@ function onConnect( $client ) {
 					else{
 						//wrong password answer
 						$answer='{"answer":"KO","message":"Wrong extension or password"}';
+						echo $answer."\n";
 		                                $client->send($answer);
                 		                sleep(1);
 						break;
 					}
 				}
+			}
+			if(!$fnd){
+				$answer='{"answer":"KO","message":"Extension not found"}';
+                                echo $answer."\n";
+                                $client->send($answer);
+                                sleep(1);
 			}
 			break;
 			
