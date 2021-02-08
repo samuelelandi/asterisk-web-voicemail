@@ -55,8 +55,7 @@ you can remove an extension with:
 php delete-ext.php xxxextensionxxxxx yyyypaswordyyyyy
 ```
 
-
-##Running
+## Running
 
 Start the socket server as daemon:
 
