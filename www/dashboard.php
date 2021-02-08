@@ -153,14 +153,14 @@
                     else
                         echo '<form method="post"><button class="btn btn-secondary" type="submit" name="unarchive" value="'.$f->filename.'">Un-archive</button> ';                    
                         
-                    echo '</form><button class="btn btn-danger" name="delete" type="submit" value="'.$f->filename.'" ';
+                    echo '<button class="btn btn-danger" name="delete" type="button" value="'.$f->filename.'" ';
                     echo 'onClick="';
                     echo "if(confirm('Do you confirm the irreversible cancellation of this message?') == true){";
                     echo "window.location='dashboard.php?folder=".urlencode($_SESSION['folder']);
                     echo "&delete=".urlencode($f->filename);
                     echo "';}";
                     echo'"';
-                    echo '>Delete</button> ';
+                    echo '>Delete</button></form> ';
                     echo "</td></tr>";
                 }
             }
