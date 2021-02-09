@@ -4,10 +4,10 @@
 //****************************************************************************
 
 // **** PARAMETERS TO CUSTOMIZE FOR YOUR ASTERISK INSTALLATION *******************
-$MAILBOXPATH ="/var/spool/asterisk/voicemail/dinara/";
+$MAILBOXPATH ="/var/spool/asterisk/voicemail/default/";
 $PASSWORDFILE  ="/etc/asterisk/asterisk-web-mailbox.pwd";
 //**** very IMPORTANT - CHANGE THIS SECRET SEED 
-$SECRETSEED = "5ac3162036c96541c8c2336c2689ee572f71ebdad2a67c98ab82ee1725436a56"; 
+$SECRETSEED = "a1477fd47bfd73aadc85e27f1bf6b584e6ffc1a002573e43c3e4cff9590542a1"; 
 //********************END PARAMETERS *********************************************
 
 // Check dependencies
@@ -176,7 +176,6 @@ function onConnect( $client ) {
 					continue;
 				$fn[]=$filename;
 			}
-			var_dump($fn);
 			$vt="[";
 			foreach($fn as $n){
 				if(strstr($n,".txt")){
@@ -341,6 +340,60 @@ function onConnect( $client ) {
                         }
                         else
 	                        $answer='{"answer":"KO","message":"file not found"}';
+                        $client->send($answer);
+                        sleep(1);
+                        break;
+		}
+		//process the "rmfileall" request
+                if(strstr($read,"/rmfileall?")!=NULL){
+                        $v=explode("?",$read);
+                        if(!isset($v[1])){
+                                $answer='{"answer":"KO","message":"Missing data for the query"}';
+                                $client->send($answer);
+                                sleep(1);
+                                break;  
+                        }
+                        $f=array();
+                        parse_str($v[1], $f);
+                        if(strlen($f["folder"])==0 || strlen($f["token"])==0){
+                                $answer='{"answer":"KO","message":"Missing folder or token"}';
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        //remove \r\n if present in the token field
+                        $token=str_replace("\n","",$f["token"]);
+                        $token=str_replace("\r","",$token);
+                        // decrypt token and get the username
+                        $cleartext=decrypt($token,$GLOBALS["SECRETSEED"]);
+                        $v=explode("#",$cleartext);
+                        if(!isset($v[0])){
+	                        $answer='{"answer":"KO","message":"Token not valid"}';
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        if(time()>$v[1]){
+                        	$answer='{"answer":"KO","message":"Token is expired"}';
+                                $client->send($answer);
+                                sleep(1);
+                                break;
+                        }
+                        $fp=$GLOBALS['MAILBOXPATH'].$v[0]."/".$f["folder"];
+                        $d=dir($fp);
+                        if($d!=NULL){
+                        	while (($filename = $d->read()) !== false){ 
+	                                if($filename=="." || $filename=="..")
+	                                        continue;
+					$fnr=$fp."/".$filename;
+					echo "deleting: ".$fnr."\n";
+        	                        unlink($fnr);
+	                        }
+                        	
+                        	$answer='{"answer":"OK","message":"all files deleted"}';
+                        }
+                        else
+	                        $answer='{"answer":"KO","message":"folder not found"}';
                         $client->send($answer);
                         sleep(1);
                         break;

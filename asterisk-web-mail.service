@@ -1,0 +1,26 @@
+[Unit]
+Description=Asterisk VOice Mail WEB access.
+Requires=apache2.service
+After=network.target asterisk.service
+
+[Service]
+Type=simple
+#Environment=HOME=/var/lib/asterisk
+#WorkingDirectory=/var/lib/asterisk
+#User=asteris
+#Group=asterisk
+ExecStart=/usr/bin/php /usr/src/asterisk-web-voicemail/asterisk-web-voicemail-server.php
+ExecStop=/usr/src/asterisk-web-voicemail/service-stop.sh
+ExecReload=/usr/src/asterisk-web-voicemail/service-reload.sh
+
+#Nice=0
+#UMask=0002
+#LimitCORE=infinity
+#LimitNOFILE=
+Restart=always
+RestartSec=10s
+TimeoutStartSec=30
+TimeoutStopSec=15
+
+[Install]
+WantedBy=multi-user.target

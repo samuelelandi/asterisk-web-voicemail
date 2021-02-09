@@ -65,6 +65,23 @@
             exit(0);
         }
     }   
+    // process delete all request
+    if(isset($_REQUEST['deleteall'])){
+        $socket=connect_to_server();
+        $m="/rmfileall?folder=".$_REQUEST['folder']."&token=".urlencode($_SESSION['token']);
+        socket_write($socket, $m, strlen($m));
+        socket_set_option($socket,SOL_SOCKET, SO_RCVTIMEO, array("sec"=>5, "usec"=>0));
+        $a=socket_read($socket,2048);    
+        socket_close($socket);
+        $j=json_decode($a);
+        if($j->answer=="KO"){
+            $error=$j->message;
+        }
+        else{
+            header("Location: dashboard.php");
+            exit(0);
+        }
+    }   
     // swith to archived folder (Old)
     if(isset($_REQUEST['archived'])){
         $_SESSION['folder']="Old";
@@ -88,6 +105,7 @@
 ?>
 <html>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+<title>Voice Mail</title>
 <body>
     
     <div class="container-md">
@@ -102,12 +120,18 @@
                     echo '</div>';
             }
             if($folder=="INBOX"){
-                echo '<div><form method="post"><button class="btn btn-Link" type="submit" name="archived" value="archived">Switch to Archived</button> ';
+                echo '<div><form method="post"><button class="btn btn-primary" type="submit" name="archived" value="archived">Switch to Archived</button> ';
             }
             else {
-                echo '<div><form method="post"><button class="btn btn-Link" type="submit" name="new" value="new">Switch to New Messages</button> ';            
+                echo '<div><form method="post"><button class="btn btn-primary" type="submit" name="new" value="new">Switch to New Messages</button> ';            
             }
-            echo '<button class="btn btn-Link" type="submit" name="logout" value="new">Logout</button></div> ';            
+            echo '<button class="btn btn-secondary" type="submit" name="logout" value="new">Logout</button> ';            
+            echo '<button class="btn btn-danger" name="deleteall" type="button" value="deleteall" onClick="';
+            echo "if(confirm('Do you confirm the irreversible cancellation of ALL messages?') == true){";
+            echo "window.location='dashboard.php?folder=".urlencode($_SESSION['folder']);
+            echo "&deleteall=confirmed';}";
+            echo'"';
+            echo '>Delete All</button></form></div> ';
             
         ?>
         </td>
