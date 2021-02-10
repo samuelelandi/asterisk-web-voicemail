@@ -1,7 +1,7 @@
 # asterisk-web-voicemail
 Web interface for the  management of Asterisk Voice Mail.
 
-This package is an add-on to [Asterisk Sip Server](https://www.asterisk.org).
+This package is an add-on to [Asterisk Sip Server ver.18.x](https://www.asterisk.org).
 
 It allows the SIP user to login to a web interface, view
 the voice mails received ordered by date, listen the recording, delete and move in
@@ -11,6 +11,7 @@ different folders (New and Archived).
 
 PHP 7.x
 apache 2.x
+
 you can install it on modern Linux Debian/Ubuntu by:
 
 ```sh
