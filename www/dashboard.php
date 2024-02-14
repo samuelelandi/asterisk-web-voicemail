@@ -217,12 +217,29 @@ function connect_to_server(){
     return($socket);    
 }
 // function to get audio data from the asterisk-web-voicemail-server
-function get_audio_data($folder,$filename,$token){
-    $m="/getfile?folder=".$folder."&filename=".urlencode($filename)."&token=".urlencode($token);
-    $socket=connect_to_server();
+function get_audio_data($folder, $filename, $token) {
+    $m = "/getfile?folder=" . $folder . "&filename=" . urlencode($filename) . "&token=" . urlencode($token);
+    $socket = connect_to_server();
     socket_write($socket, $m, strlen($m));
-    socket_set_option($socket,SOL_SOCKET, SO_RCVTIMEO, array("sec"=>15, "usec"=>0));
-    $a=socket_read($socket,10000000);
-    return($a);    
+    socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, array("sec" => 15, "usec" => 0));
+
+    $fullData = '';
+    while (true) {
+        $buffer = @socket_read($socket, 2048);
+        if ($buffer === false) {
+            if (socket_last_error($socket) == 0) {
+                break;
+            } else {
+                break;
+            }
+        }
+        $fullData .= $buffer;
+        if (strlen($buffer) < 2048) {
+            break;
+        }
+    }
+    socket_close($socket);
+    return $fullData;
 }
+
 ?>
